@@ -1,0 +1,6 @@
+dist
+node_modules
+gendoc.sh
+package-lock.json
+project_list.md
+sshm.json

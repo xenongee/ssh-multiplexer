@@ -1,0 +1,40 @@
+{
+  "name": "ssh-multiplexer",
+  "version": "v0.1.0",
+  "description": "a web-based ssh multiplexer allows simultaneous connections to multiple servers through a browser interface using xterm and websockets",
+  "main": "server.js",
+  "bin": "server.js",
+  "scripts": {
+    "dev": "nodemon",
+    "server": "node server.js",
+    "build": "pkg . --no-bytecode --compress Brotli"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "express": "^5.1.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "@yao-pkg/pkg": "^6.3.2"
+  },
+  "pkg": {
+    "targets": [
+      "node18-linux-x64",
+      "node18-win-x64"
+    ],
+    "assets": [
+      "public/**/*",
+      "node_modules/@xterm/xterm/css/**/*",
+      "node_modules/@xterm/xterm/lib/**/*",
+      "node_modules/@xterm/addon-fit/lib/**/*",
+      "node_modules/socket.io-client/dist/**/*"
+    ],
+    "outputPath": "dist"
+  }
+}

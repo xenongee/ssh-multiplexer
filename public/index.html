@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SSH Multiplexer</title>
+        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href="/vendor/xterm/css/xterm.css" />
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>"
+        />
+    </head>
+    <body>
+        <div id="connectionStatus" class="status-bar">
+            Connecting to server...
+        </div>
+        <header>
+            <div>
+                <h1 id="appTitle">SSH Multiplexer</h1>
+                <small id="appSubtitle">v0.1.0 by xenongee</small>
+            </div>
+            <div class="controls">
+                <div>
+                    <label for="groupSelect">Group:</label>
+                    <select id="groupSelect" disabled>
+                        <option value="">-- Select --</option>
+                    </select>
+                    <button
+                        id="reconnectGroupBtn"
+                        title="Reconnect all in group"
+                        disabled
+                    >
+                        ↻
+                    </button>
+                </div>
+                <div>
+                    <label for="termWidthInput">Min Width (px):</label>
+                    <input
+                        type="number"
+                        id="termWidthInput"
+                        min="200"
+                        max="2000"
+                        value="400"
+                        step="100"
+                    />
+                </div>
+                <div>
+                    <label for="commandInput">Input:</label>
+                    <input
+                        type="text"
+                        id="commandInput"
+                        placeholder="Select group first"
+                        disabled
+                    />
+                </div>
+            </div>
+        </header>
+        <main id="terminalsContainer"></main>
+        <template id="terminalTemplate">
+            <div class="terminal-wrapper connecting-state">
+                <div class="terminal-header">
+                    <span class="terminal-title" title=""></span>
+                    <!-- Title attribute will be set by JS -->
+                    <div class="terminal-header-buttons">
+                        <button
+                            class="reconnect-btn"
+                            title="Reconnect"
+                            disabled
+                        >
+                            ↻
+                        </button>
+                        <button class="expand-btn" title="Expand">▣</button>
+                    </div>
+                </div>
+                <div class="terminal-output">
+                    <p class="connecting-message">Connecting...</p>
+                </div>
+            </div>
+        </template>
+        <script src="/vendor/socket.io/socket.io.js"></script>
+        <script src="/vendor/xterm/lib/xterm.js"></script>
+        <script src="/vendor/xterm-addon-fit/lib/addon-fit.js"></script>
+        <script src="client.js"></script>
+    </body>
+</html>

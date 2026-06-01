@@ -1,0 +1,23 @@
+{
+  "app_port": 3333,
+  "app_host": "127.0.0.1",
+  "terminal_defaults": {
+    "fontFamily": "'Fira Code', Consolas, 'Courier New', monospace",
+    "fontSize": 11,
+    "minWidth": 600
+  },
+  "groups": [
+    {
+      "group": "Computers Group",
+      "hosts": [
+        {
+          "label": "PC-01",
+          "user": "root",
+          "host": "192.168.1.1",
+          "port": 22,
+          "password": "adminpassword"
+        }
+      ]
+    }
+  ]
+}

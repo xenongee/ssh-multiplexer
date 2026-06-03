@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "ssh_multiplexer",
+  "project_id": "2cd3e086-36bc-4eb6-846f-f6487b17d489"
+}

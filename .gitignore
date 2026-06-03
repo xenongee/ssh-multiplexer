@@ -4,3 +4,8 @@ gendoc.sh
 package-lock.json
 project_list.md
 sshm.json
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key

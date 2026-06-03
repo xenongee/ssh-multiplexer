@@ -1,4 +1,5 @@
 'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const groupSelect = document.getElementById('groupSelect');
@@ -389,7 +390,10 @@ isConnecting: true, isReady: false, hasError: false, isClosed: false, isLocked: 
 
         event.preventDefault();
 
-        if (altKey || (isMac && metaKey)) {
+        if (altKey && key.toLowerCase() === 'w') {
+            requiresActivityIndicator = true;
+            sequence = '\x17';
+        } else if (altKey || (isMac && metaKey)) {
             requiresActivityIndicator = true;
             if (key.length === 1 && key !== ' ') { sequence = '\x1b' + key; }
             else if (key === 'Backspace') { sequence = '\x1b\x7f'; }
@@ -556,6 +560,16 @@ isConnecting: true, isReady: false, hasError: false, isClosed: false, isLocked: 
     });
 
     // --- Initial State ---
+    fetch('/api/version').then(r => r.json()).then(d => {
+        const el = document.getElementById('appVersion');
+        if (el) el.textContent = d.version;
+    }).catch(() => {});
+
     setConnectionStatus('Connecting to server...', 'info');
     updateGlobalControlsState();
+
+    window.addEventListener('beforeunload', (e) => {
+        e.preventDefault();
+        e.returnValue = '';
+    });
 });

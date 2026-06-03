@@ -127,6 +127,21 @@ bd close bd-42 --reason "Completed" --json
    - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
 5. **Complete**: `bd close <id> --reason "Done"`
 
+### User Workflow Pipeline
+
+**CRITICAL**: The following workflow must be followed for ALL tasks:
+
+1. **Create task** in bd
+2. **Execute** the task (implement code)
+3. **User verifies** the result (manual testing or code review)
+4. **Close task** after user approval
+
+**Commit and push rules:**
+- NEVER commit or push without explicit user approval
+- Changes remain unstaged until user says to commit
+- Commit and push are ONLY done by the user
+- Do NOT auto-commit or auto-push — even after task completion
+
 ### Quality
 - Use `--acceptance` and `--design` fields when creating issues
 - Use `--validate` to check description completeness
@@ -160,28 +175,14 @@ For more details, see README.md and docs/QUICKSTART.md.
 
 ## Session Completion
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
+**When ending a work session**, complete ALL steps below.
 
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
 2. **Run quality gates** (if code changed) - Tests, linters, builds
 3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+4. **Hand off** - Provide context for next session
 
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+**IMPORTANT**: Commit and push are ONLY done by the user after verification. Never auto-commit or auto-push.
 
 ## Commit Convention
 

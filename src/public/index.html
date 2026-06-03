@@ -15,12 +15,21 @@
         <div id="connectionStatus" class="status-bar">
             Connecting to server...
         </div>
-        <header>
+        <main id="terminalsContainer"></main>
+        <footer>
             <div>
                 <h1 id="appTitle">SSH Multiplexer</h1>
                 <small id="appSubtitle">
                     <span id="appVersion">version unknown</span> by xenongee
                 </small>
+            </div>
+            <div class="commandInput">
+                <input
+                    type="text"
+                    id="commandInput"
+                    placeholder="Select group first"
+                    disabled
+                />
             </div>
             <div class="controls">
                 <div>
@@ -61,18 +70,8 @@
                         step="100"
                     />
                 </div>
-                <div>
-                    <label for="commandInput">Input:</label>
-                    <input
-                        type="text"
-                        id="commandInput"
-                        placeholder="Select group first"
-                        disabled
-                    />
-                </div>
             </div>
-        </header>
-        <main id="terminalsContainer"></main>
+        </footer>
         <template id="terminalTemplate">
             <div class="terminal-wrapper connecting-state">
                 <div class="terminal-header">

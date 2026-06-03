@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Setup ---
     const styleSheet = document.createElement("style");
     styleSheet.innerText = `#commandInput.inactive-broadcast { background-color: #4a4a4a; color: #999; font-style: italic; }
-    .terminal-wrapper.locked-state { opacity: 0.7; border-color: #f0ad4e; }
+    .terminal-wrapper.locked-state { opacity: 0.7; border-color: var(--lock-color); }
     .terminal-wrapper.locked-state .terminal-output { background: #3a3020; }`;
     document.head.appendChild(styleSheet);
 
@@ -572,4 +572,13 @@ isConnecting: true, isReady: false, hasError: false, isClosed: false, isLocked: 
         e.preventDefault();
         e.returnValue = '';
     });
+
+    // Alt+X focuses commandInput
+    window.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 'x' && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            commandInput.focus();
+            commandInput.select();
+        }
+    }, { capture: true });
 });

@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Elements ---
     const groupSelect = document.getElementById('groupSelect');
     const reconnectGroupBtn = document.getElementById('reconnectGroupBtn');
+    const invertLocksBtn = document.getElementById('invertLocksBtn');
+    const unlockAllBtn = document.getElementById('unlockAllBtn');
     const commandInput = document.getElementById('commandInput');
     const terminalsContainer = document.getElementById('terminalsContainer');
     const termWidthInput = document.getElementById('termWidthInput');
@@ -20,7 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Setup ---
     const styleSheet = document.createElement("style");
-    styleSheet.innerText = `#commandInput.inactive-broadcast { background-color: #4a4a4a; color: #999; font-style: italic; }`;
+    styleSheet.innerText = `#commandInput.inactive-broadcast { background-color: #4a4a4a; color: #999; font-style: italic; }
+    .terminal-wrapper.locked-state { opacity: 0.7; border-color: #f0ad4e; }
+    .terminal-wrapper.locked-state .terminal-output { background: #3a3020; }`;
     document.head.appendChild(styleSheet);
 
     // --- Helper Functions (FIXED: All function bodies are restored) ---
@@ -75,6 +79,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function setTerminalLockUI(termInfo) {
+        if (!termInfo) return;
+        const lockBtn = termInfo.element.querySelector('.lock-btn');
+        if (lockBtn) {
+            lockBtn.textContent = termInfo.isLocked ? '🔒' : '🔓';
+            lockBtn.title = termInfo.isLocked ? 'Unlock from broadcast input' : 'Lock from broadcast input';
+        }
+        termInfo.element.classList.toggle('locked-state', termInfo.isLocked);
+    }
+
     function fitTerminal(termInfo) {
         if (!termInfo?.term?.element || !termInfo.fitAddon) return;
         try {
@@ -112,6 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
         commandInput.disabled = !groupSelected || !canReceiveInput;
         commandInput.placeholder = !groupSelected ? 'Select group first' : (!canReceiveInput ? 'Waiting for connections...' : 'Input for active terminals');
         commandInput.classList.remove('inactive-broadcast');
+        const hasTerminals = Object.values(terminals).length > 0;
+        invertLocksBtn.disabled = !hasTerminals;
+        unlockAllBtn.disabled = !hasTerminals;
     }
 
     function clearAllTerminals() {
@@ -129,13 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fullscreenWrapper) {
             const connId = fullscreenWrapper.dataset.connId;
             const termInfo = terminals[connId];
-            if (termInfo?.isReady && !termInfo.isClosed && !termInfo.hasError) {
+            if (termInfo?.isReady && !termInfo.isClosed && !termInfo.hasError && !termInfo.isLocked) {
                 socket.emit('term.input.specific', connId, data);
             }
         } else {
-            if (Object.values(terminals).some(t => t.isReady && !t.isClosed && !t.hasError)) {
-                socket.emit('term.input.broadcast.key', data);
-            }
+            Object.entries(terminals).forEach(([connId, t]) => {
+                if (t.isReady && !t.isClosed && !t.hasError && !t.isLocked) {
+                    socket.emit('term.input.specific', connId, data);
+                }
+            });
         }
     }
 
@@ -221,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 element: wrapper, outputDiv: outputDiv, reconnectBtn: reconnectButton,
                 connId: connId, displayHostString: displayHostString,
                 term: null, fitAddon: null,
-                isConnecting: true, isReady: false, hasError: false, isClosed: false
+isConnecting: true, isReady: false, hasError: false, isClosed: false, isLocked: false
             };
             terminals[connId] = termInfo;
         }
@@ -343,6 +362,20 @@ document.addEventListener('DOMContentLoaded', () => {
         fitRelevantTerminalsDebounced();
     });
 
+    invertLocksBtn.addEventListener('click', () => {
+        Object.values(terminals).forEach(t => {
+            t.isLocked = !t.isLocked;
+            setTerminalLockUI(t);
+        });
+    });
+
+    unlockAllBtn.addEventListener('click', () => {
+        Object.values(terminals).forEach(t => {
+            t.isLocked = false;
+            setTerminalLockUI(t);
+        });
+    });
+
     // --- Input Handling (Keyboard) ---
     commandInput.addEventListener('keydown', (event) => {
         if (commandInput.disabled) return;
@@ -435,9 +468,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     terminalsContainer.addEventListener('click', (event) => {
+        const lockBtn = event.target.closest('.lock-btn');
         const reconnectBtn = event.target.closest('.reconnect-btn');
         const expandBtn = event.target.closest('.expand-btn');
-        if (reconnectBtn) {
+        if (lockBtn) {
+            const wrapper = lockBtn.closest('.terminal-wrapper');
+            if (!wrapper) return;
+            const connId = wrapper.dataset.connId;
+            const termInfo = terminals[connId];
+            if (!termInfo) return;
+            termInfo.isLocked = !termInfo.isLocked;
+            setTerminalLockUI(termInfo);
+        } else if (reconnectBtn) {
             const wrapper = reconnectBtn.closest('.terminal-wrapper');
             if (!wrapper || reconnectBtn.disabled) return;
             const connId = wrapper.dataset.connId;

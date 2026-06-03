@@ -18,7 +18,7 @@
         <header>
             <div>
                 <h1 id="appTitle">SSH Multiplexer</h1>
-                <small id="appSubtitle">v0.1.0 by xenongee</small>
+                <small id="appSubtitle">v0.1.1 by xenongee</small>
             </div>
             <div class="controls">
                 <div>
@@ -32,6 +32,20 @@
                         disabled
                     >
                         ↻
+                    </button>
+                    <button
+                        id="invertLocksBtn"
+                        title="Invert all terminal locks"
+                        disabled
+                    >
+                        ⇅
+                    </button>
+                    <button
+                        id="unlockAllBtn"
+                        title="Unlock all terminals"
+                        disabled
+                    >
+                        🔓
                     </button>
                 </div>
                 <div>
@@ -63,6 +77,12 @@
                     <span class="terminal-title" title=""></span>
                     <!-- Title attribute will be set by JS -->
                     <div class="terminal-header-buttons">
+                        <button
+                            class="lock-btn"
+                            title="Lock/Unlock from broadcast input"
+                        >
+                            🔓
+                        </button>
                         <button
                             class="reconnect-btn"
                             title="Reconnect"

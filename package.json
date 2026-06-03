@@ -1,6 +1,6 @@
 {
   "name": "ssh-multiplexer",
-  "version": "v0.1.0",
+  "version": "v0.1.1",
   "description": "a web-based ssh multiplexer allows simultaneous connections to multiple servers through a browser interface using xterm and websockets",
   "main": "server.js",
   "bin": "server.js",

@@ -183,4 +183,16 @@ For more details, see README.md and docs/QUICKSTART.md.
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 
+## Commit Convention
+
+Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) in English:
+
+- `feat:` — new feature
+- `fix:` — bug fix
+- `refactor:` — code restructuring
+- `chore:` — maintenance, version bumps, etc.
+- `docs:` — documentation
+
+Format: `<type>: <short description in English>`
+
 <!-- END BEADS INTEGRATION -->

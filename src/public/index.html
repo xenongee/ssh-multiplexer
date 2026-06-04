@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="/vendor/xterm/css/xterm.css" />
         <link
             rel="icon"
-            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📟</text></svg>"
         />
     </head>
     <body>
@@ -17,13 +17,22 @@
         </div>
         <main id="terminalsContainer"></main>
         <footer>
-            <div>
+            <div class="app-title">
                 <h1 id="appTitle">SSH Multiplexer</h1>
                 <small id="appSubtitle">
                     <span id="appVersion">version unknown</span> by xenongee
                 </small>
             </div>
-            <div class="commandInput">
+            <div class="controls">
+                <button id="helpBtn" title="Справка">?</button>
+                <div>
+                    <select id="groupSelect" disabled>
+                        <option value="">-- Select Group --</option>
+                    </select>
+                </div>
+                <button>Edit</button>
+            </div>
+            <div class="command-input">
                 <input
                     type="text"
                     id="commandInput"
@@ -33,10 +42,6 @@
             </div>
             <div class="controls">
                 <div>
-                    <label for="groupSelect">Group:</label>
-                    <select id="groupSelect" disabled>
-                        <option value="">-- Select --</option>
-                    </select>
                     <button
                         id="reconnectGroupBtn"
                         title="Reconnect all in group"
@@ -99,6 +104,37 @@
                 </div>
             </div>
         </template>
+        <div id="helpModal" class="modal-overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Справка</h2>
+                    <button class="modal-close">x</button>
+                </div>
+                <div class="modal-body">
+                    <dl class="shortcuts-list">
+                        <div class="shortcut-item">
+                            <dt><kbd>Alt</kbd>+<kbd>X</kbd></dt>
+                            <dd>Фокус на панели ввода</dd>
+                        </div>
+                        <div class="shortcut-item">
+                            <dt><kbd>Alt</kbd>+<kbd>W</kbd></dt>
+                            <dd>Удалить символы до первого пробела (одно слово)</dd>
+                        </div>
+                        <div class="shortcut-item">
+                            <dt><kbd>Ctrl</kbd>+<kbd>U</kbd></dt>
+                            <dd>Удалить все символы слева от курсора</dd>
+                        </div>
+                        <div class="shortcut-item">
+                            <dt><kbd>Ctrl</kbd>+<kbd>K</kbd></dt>
+                            <dd>Удалить все символы справа от курсора</dd>
+                        </div>
+                    </dl>
+                    <p class="modal-note">
+                        - Закрытие вкладки покажет предупреждение о подтверждении.
+                    </p>
+                </div>
+            </div>
+        </div>
         <script src="/vendor/socket.io/socket.io.js"></script>
         <script src="/vendor/xterm/lib/xterm.js"></script>
         <script src="/vendor/xterm-addon-fit/lib/addon-fit.js"></script>

@@ -8,14 +8,14 @@ import {
   setTerminalMinWidth,
   clearAllTerminals,
 } from "./terminal.js";
-import { updateGlobalControlsState } from "./ui.js";
+import { renderControls, renderConnectionStatus } from "./render.js";
 
 export function initSocket(socket) {
   socket.on("connect", () => {
     console.log("Connected to server.");
-    setConnectionStatus("");
+    renderConnectionStatus("");
     dom.groupSelect.disabled = false;
-    updateGlobalControlsState();
+    renderControls();
     if (state.currentGroupName) {
       console.log(`Re-selecting group after connection: ${state.currentGroupName}`);
       socket.emit("selectGroup", state.currentGroupName);
@@ -28,8 +28,7 @@ export function initSocket(socket) {
     dom.commandInput.disabled = true;
     dom.reconnectGroupBtn.disabled = true;
     clearAllTerminals();
-    updateGlobalControlsState();
-    setConnectionStatus(
+    renderConnectionStatus(
       `Disconnected (${reason}). Reconnecting...`,
       "reconnecting",
     );
@@ -38,7 +37,7 @@ export function initSocket(socket) {
   socket.on("connect_error", (err) => {
     console.error("Connection Error:", err.message);
     clearAllTerminals();
-    setConnectionStatus(
+    renderConnectionStatus(
       `Connection failed: ${err.message}. Check server/refresh.`,
       "error",
     );
@@ -46,7 +45,6 @@ export function initSocket(socket) {
     dom.groupSelect.disabled = true;
     dom.commandInput.disabled = true;
     dom.reconnectGroupBtn.disabled = true;
-    updateGlobalControlsState();
   });
 
   socket.on("appConfig", (config) => {
@@ -70,12 +68,11 @@ export function initSocket(socket) {
       dom.groupSelect.appendChild(option);
     });
     dom.groupSelect.disabled = false;
-    updateGlobalControlsState();
+    renderControls();
   });
 
   socket.on("clearTerminals", () => {
     clearAllTerminals();
-    updateGlobalControlsState();
   });
 
   socket.on("term.create", (connId, displayHostString) => {
@@ -107,13 +104,12 @@ export function initSocket(socket) {
       };
       state.terminals[connId] = termInfo;
     }
-    setTerminalState(termInfo, {
+    setTerminalState(connId, {
       isConnecting: true,
       isReady: false,
       hasError: false,
       isClosed: false,
     });
-    updateGlobalControlsState();
     fitRelevantTerminalsDebounced(socket);
   });
 
@@ -148,13 +144,12 @@ export function initSocket(socket) {
     } catch (e) {
       console.error(`Error opening terminal ${connId}:`, e);
       displayTerminalMessage(termInfo, "error", "Xterm open error");
-      setTerminalState(termInfo, { isConnecting: false, hasError: true });
-      updateGlobalControlsState();
+      setTerminalState(connId, { isConnecting: false, hasError: true });
       return;
     }
     termInfo.term = term;
     termInfo.fitAddon = fitAddon;
-    setTerminalState(termInfo, {
+    setTerminalState(connId, {
       isConnecting: false,
       isReady: true,
       hasError: false,
@@ -177,7 +172,6 @@ export function initSocket(socket) {
       }
     });
     term.textarea?.addEventListener("keydown", (e) => e.stopPropagation());
-    updateGlobalControlsState();
   });
 
   socket.on("term.data", (connId, data) => {
@@ -197,12 +191,11 @@ export function initSocket(socket) {
     if (!termInfo || termInfo.isClosed) return;
     console.log(`Terminal closed: ${connId} - ${message}`);
     displayTerminalMessage(termInfo, "closed", message || "Connection closed");
-    setTerminalState(termInfo, {
+    setTerminalState(connId, {
       isConnecting: false,
       isReady: false,
       isClosed: true,
     });
-    updateGlobalControlsState();
   });
 
   socket.on("term.error", (connId, errorMsg) => {
@@ -210,27 +203,15 @@ export function initSocket(socket) {
     if (!termInfo || termInfo.isClosed || termInfo.hasError) return;
     console.error(`Terminal error: ${connId} - ${errorMsg}`);
     displayTerminalMessage(termInfo, "error", errorMsg || "Unknown error");
-    setTerminalState(termInfo, {
+    setTerminalState(connId, {
       isConnecting: false,
       isReady: false,
       hasError: true,
     });
-    updateGlobalControlsState();
   });
 
   socket.on("errorMsg", (message) => {
     console.error("Server Error:", message);
     alert(`Server Error: ${message}`);
   });
-}
-
-export function setConnectionStatus(text, type = "info") {
-  if (!dom.connectionStatus) return;
-  dom.connectionStatus.textContent = text;
-  dom.connectionStatus.className = "status-bar";
-  if (text) {
-    dom.connectionStatus.classList.add("visible");
-    if (type === "error") dom.connectionStatus.classList.add("error");
-    if (type === "reconnecting") dom.connectionStatus.classList.add("reconnecting");
-  }
 }

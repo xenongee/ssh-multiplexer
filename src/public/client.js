@@ -1,10 +1,11 @@
 "use strict";
 
-import { state, dom, initDom } from "./services/state.js";
-import { setTerminalMinWidth } from "./services/terminal.js";
-import { handleCommandKeydown, handleCommandPaste } from "./services/input.js";
-import { initSocket, setConnectionStatus } from "./services/socket.js";
-import { updateGlobalControlsState, initUI } from "./services/ui.js";
+import { state, dom, initDom } from "./modules/state.js";
+import { setTerminalMinWidth } from "./modules/terminal.js";
+import { handleCommandKeydown, handleCommandPaste } from "./modules/input.js";
+import { initSocket } from "./modules/socket.js";
+import { initUI } from "./modules/ui.js";
+import { renderControls, renderConnectionStatus } from "./modules/render.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   initDom();
@@ -36,8 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .catch(() => {});
 
-  setConnectionStatus("Connecting to server...", "info");
-  updateGlobalControlsState();
+  renderConnectionStatus("Connecting to server...", "info");
+  renderControls();
 
   window.addEventListener("beforeunload", (e) => {
     e.preventDefault();

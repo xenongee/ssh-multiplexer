@@ -1,4 +1,5 @@
 import { state, dom } from "./state.js";
+import { renderTerminals, renderControls } from "./render.js";
 
 export function createTerminalElement(connId, displayHostString) {
   const templateContent = document.importNode(dom.terminalTemplate.content, true);
@@ -47,7 +48,7 @@ export function displayTerminalMessage(termInfo, type, message) {
 }
 
 export function setTerminalState(
-  termInfo,
+  connId,
   {
     isConnecting = false,
     isReady = false,
@@ -55,6 +56,7 @@ export function setTerminalState(
     isClosed = false,
   },
 ) {
+  const termInfo = state.terminals[connId];
   if (!termInfo) return;
   const changed =
     termInfo.isConnecting !== isConnecting ||
@@ -66,27 +68,15 @@ export function setTerminalState(
   termInfo.isReady = isReady;
   termInfo.hasError = hasError;
   termInfo.isClosed = isClosed;
-  termInfo.element.classList.toggle("connecting-state", isConnecting);
-  termInfo.element.classList.toggle("reconnecting-state", isConnecting);
-  termInfo.element.classList.toggle("error-state", hasError);
-  termInfo.element.classList.toggle("closed-state", isClosed);
-  termInfo.reconnectBtn.disabled = isConnecting;
-  if (termInfo.term) {
-    termInfo.term.options.disableStdin = !isReady || hasError || isClosed;
-    termInfo.term.options.cursorBlink = isReady && !hasError && !isClosed;
-  }
+  renderTerminals();
+  renderControls();
 }
 
-export function setTerminalLockUI(termInfo) {
+export function setTerminalLock(connId, isLocked) {
+  const termInfo = state.terminals[connId];
   if (!termInfo) return;
-  const lockBtn = termInfo.element.querySelector(".lock-btn");
-  if (lockBtn) {
-    lockBtn.textContent = termInfo.isLocked ? "🔒" : "🔓";
-    lockBtn.title = termInfo.isLocked
-      ? "Unlock from broadcast input"
-      : "Lock from broadcast input";
-  }
-  termInfo.element.classList.toggle("locked-state", termInfo.isLocked);
+  termInfo.isLocked = isLocked;
+  renderTerminals();
 }
 
 export function fitTerminal(termInfo, socket) {
@@ -134,6 +124,7 @@ export function clearAllTerminals() {
   dom.terminalsContainer.innerHTML = "";
   state.terminals = {};
   exitFullscreen();
+  renderControls();
 }
 
 export function exitFullscreen() {

@@ -1,30 +1,13 @@
 import { state, dom } from "./state.js";
 import {
-  setTerminalLockUI,
+  setTerminalLock,
   displayTerminalMessage,
   setTerminalState,
   fitTerminal,
   fitRelevantTerminalsDebounced,
   exitFullscreen,
 } from "./terminal.js";
-
-export function updateGlobalControlsState() {
-  const groupSelected = dom.groupSelect.value !== "";
-  dom.reconnectGroupBtn.disabled = !groupSelected;
-  const canReceiveInput = Object.values(state.terminals).some(
-    (t) => t.isReady && !t.isClosed && !t.hasError,
-  );
-  dom.commandInput.disabled = !groupSelected || !canReceiveInput;
-  dom.commandInput.placeholder = !groupSelected
-    ? "Select group first"
-    : !canReceiveInput
-      ? "Waiting for connections..."
-      : "Input for active terminals";
-  dom.commandInput.classList.remove("inactive-broadcast");
-  const hasTerminals = Object.values(state.terminals).length > 0;
-  dom.invertLocksBtn.disabled = !hasTerminals;
-  dom.unlockAllBtn.disabled = !hasTerminals;
-}
+import { renderTerminals, renderControls, renderConnectionStatus } from "./render.js";
 
 export function initUI(socket) {
   dom.groupSelect.addEventListener("change", () => {
@@ -43,7 +26,7 @@ export function initUI(socket) {
       dom.terminalsContainer.innerHTML = "";
       state.terminals = {};
     }
-    updateGlobalControlsState();
+    renderControls();
   });
 
   dom.reconnectGroupBtn.addEventListener("click", () => {
@@ -51,7 +34,7 @@ export function initUI(socket) {
       console.log(`Reconnecting group: ${state.currentGroupName}`);
       dom.commandInput.value = "";
       socket.emit("selectGroup", state.currentGroupName);
-      updateGlobalControlsState();
+      renderControls();
     }
   });
 
@@ -68,16 +51,14 @@ export function initUI(socket) {
   });
 
   dom.invertLocksBtn.addEventListener("click", () => {
-    Object.values(state.terminals).forEach((t) => {
-      t.isLocked = !t.isLocked;
-      setTerminalLockUI(t);
+    Object.keys(state.terminals).forEach((connId) => {
+      setTerminalLock(connId, !state.terminals[connId].isLocked);
     });
   });
 
   dom.unlockAllBtn.addEventListener("click", () => {
-    Object.values(state.terminals).forEach((t) => {
-      t.isLocked = false;
-      setTerminalLockUI(t);
+    Object.keys(state.terminals).forEach((connId) => {
+      setTerminalLock(connId, false);
     });
   });
 
@@ -91,8 +72,7 @@ export function initUI(socket) {
       const connId = wrapper.dataset.connId;
       const termInfo = state.terminals[connId];
       if (!termInfo) return;
-      termInfo.isLocked = !termInfo.isLocked;
-      setTerminalLockUI(termInfo);
+      setTerminalLock(connId, !termInfo.isLocked);
     } else if (reconnectBtn) {
       const wrapper = reconnectBtn.closest(".terminal-wrapper");
       if (!wrapper || reconnectBtn.disabled) return;
@@ -103,13 +83,12 @@ export function initUI(socket) {
         if (termInfo.term) termInfo.term.clear();
         else if (termInfo.outputDiv) termInfo.outputDiv.innerHTML = "";
         displayTerminalMessage(termInfo, "reconnecting", "Reconnecting...");
-        setTerminalState(termInfo, {
+        setTerminalState(connId, {
           isConnecting: true,
           isReady: false,
           hasError: false,
           isClosed: false,
         });
-        updateGlobalControlsState();
         socket.emit("term.reconnect", connId);
       }
     } else if (expandBtn) {
@@ -139,7 +118,7 @@ export function initUI(socket) {
           fitRelevantTerminalsDebounced(socket);
         }
       }, 50);
-      updateGlobalControlsState();
+      renderControls();
     } else {
       const wrapper = event.target.closest(".terminal-wrapper");
       if (wrapper?.classList.contains("fullscreen")) {

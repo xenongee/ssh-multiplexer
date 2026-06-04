@@ -73,10 +73,17 @@ ssh-multiplexer/
 │   ├── utils/
 │   │   ├── connId.js            # Генерация уникальных ID подключений
 │   │   └── logger.js            # Логирование
-│   └── public/                  # Frontend (статика)
+│   └── public/                  # Frontend (ES модули)
+│       ├── client.js            # Точка входа (инициализация)
 │       ├── index.html           # Главная страница
-│       ├── client.js            # Клиентская логика (Socket.IO, xterm, UI)
-│       └── style.css            # Стили (тёмная тема, сетка, статусы)
+│       ├── style.css            # Стили (тёмная тема, сетка, статусы)
+│       └── modules/
+│           ├── state.js         # Глобальное состояние + DOM-ссылки
+│           ├── render.js        # Render-функции (terminals, controls, status)
+│           ├── terminal.js      # Терминалы (создание, fit, fullscreen)
+│           ├── input.js         # Keyboard/paste handling
+│           ├── socket.js        # Socket.IO обработчики
+│           └── ui.js            # DOM event listeners, help modal
 ├── package.json                 # Зависимости, скрипты, pkg-конфигурация
 ├── sshm.json                    # Конфигурация приложения (группы хостов, порт, терминал)
 ├── gendoc.sh                    # Скрипт генерации project_list.md
@@ -89,7 +96,7 @@ ssh-multiplexer/
 
 ## Архитектура
 
-
+### Сервер
 
 Сервер разделён на независимые модули:
 
@@ -100,6 +107,24 @@ ssh-multiplexer/
 | `SessionManager` | Коллекция сессий, reconnect, lifecycle (без socket.io) |
 | `SocketController` | Все Socket.IO события, UI-логика (без ssh2) |
 | `server.js` | Точка входа, инициализация и связка модулей |
+
+### Фронтенд
+
+Клиентская часть на ES модулях (без bundler):
+
+| Модуль | Ответственность |
+|---|---|
+| `state.js` | Глобальное состояние (`terminals`, `currentGroupName`) + DOM-ссылки |
+| `render.js` | Централизованные render-функции: `renderTerminals()`, `renderControls()`, `renderConnectionStatus()` |
+| `terminal.js` | Создание/удаление терминалов, fit/resize, fullscreen, lock |
+| `input.js` | Обработка клавиш и paste, отправка данных в терминалы |
+| `socket.js` | Все Socket.IO события, connection status |
+| `ui.js` | Инициализация UI: кнопки, селекты, help modal |
+| `client.js` | Точка входа, инициализация и связка модулей |
+
+Паттерн: функции мутируют `state` → вызывают `render()` → UI обновляется.
+
+### Поток данных
 
 1. **При запуске** `server.js` читает `sshm.json` через `ConfigService`, запускает HTTP-сервер на `127.0.0.1:3333`
 2. **Браузер** подключается через Socket.IO, получает список групп и настройки терминала

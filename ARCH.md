@@ -1,84 +1,60 @@
-# Архитектура SSH Multiplexer
+# SSH Multiplexer Architecture
 
-## Бэкенд (модульный)
+## Backend (modular)
 
 ```
 src/
-├── server.js              — точка входа, Express + Socket.IO
+├── server.js              — entry point, Express + Socket.IO
 ├── config/
-│   └── ConfigService.js   — загрузка sshm.json
+│   └── ConfigService.js   — load sshm.json
 ├── ssh/
-│   ├── SshClient.js       — ssh2 клиент
-│   └── SessionManager.js  — управление сессиями
+│   ├── SshClient.js       — ssh2 client
+│   └── SessionManager.js  — session management
 ├── socket/
-│   └── SocketController.js — обработчики Socket.IO
+│   └── SocketController.js — Socket.IO handlers
 └── utils/
-    ├── connId.js          — генерация connId
-    └── logger.js          — логирование
+    ├── connId.js          — generate connId
+    └── logger.js          — logging
 ```
 
-## Фронтенд (монолитный, требует рефакторинга)
+## Frontend (ES modules)
 
-**Файл:** `src/public/client.js` — 584 строки, 12 функций, 0 классов
-
-### Метрики
-- Cyclomatic complexity: 88 (высокая)
-- Avg function lines: 42.67
-- classList.toggle: 21 вызов
-- Socket events: 20+ обработчиков
-- DOM events: 10+ listeners
-
-### Функции (по строкам)
-| Функция | Строка | Назначение |
-|---------|--------|------------|
-| createTerminalElement | 32 | Создание DOM элемента терминала |
-| displayTerminalMessage | 45 | Вывод сообщений (connecting/error/closed) |
-| setTerminalState | 67 | Переключение состояний (4x classList.toggle) |
-| setTerminalLockUI | 83 | UI блокировки терминала |
-| fitTerminal | 93 | Подгонка размера терминала |
-| fitRelevantTerminalsDebounced | 103 | Debounced fit с fullscreen check |
-| setTerminalMinWidth | 116 | Установка мин. ширины |
-| updateGlobalControlsState | 123 | Обновление UI контролов |
-| clearAllTerminals | 135 | Очистка всех терминалов |
-| sendDataToTerminals | 144 | Отправка данных (fullscreen check) |
-| showGlobalInputActivity | 162 | Индикатор активности (fullscreen check) |
-| setConnectionStatus | 172 | Статус подключения |
-
-### Повторяющиеся паттерны (вынести в модули)
-1. **Fullscreen check** — 3 места: строки 106, 146, 163
-2. **Fullscreen exit** — дубли: clearAllTerminals (139-140), groupSelect change (336-340)
-3. **classList.toggle** — 21 вызов, 7 подряд в setTerminalState (72-75)
-4. **Socket events** — 20+ socket.on() обработчиков (строки 184-328)
-5. **DOM events** — 10+ addEventListener (строки 331-560)
-6. **Keyboard sequences** — таблица маппинга клавиш (строки 381-461)
-
-### План рефакторинга
 ```
-src/public/services/
-├── TerminalService.js  — создание, состояние, fit/resize, fullscreen
-├── InputService.js     — keyboard/paste, sequence mapping
-├── SocketService.js    — connection, event registration
-└── UIController.js     — global controls, status bar
+src/public/
+├── client.js              — entry point (59 lines), initialization
+├── index.html             — main page
+├── style.css              — styles (dark theme, grid, statuses)
+├── fonts/                 — fonts (Fira Code)
+└── modules/
+    ├── state.js           — global state + DOM references
+    ├── render.js          — render functions (terminals, controls, status)
+    ├── terminal.js        — terminals (create, fit, fullscreen)
+    ├── input.js           — keyboard/paste handling
+    ├── socket.js          — Socket.IO handlers
+    └── ui.js              — DOM event listeners, help modal
 ```
 
-Подключение через `<script>` теги в index.html (без bundler).
+### Modules
 
-### Глобальное состояние
-- `terminals` — объект с termInfo по connId
-- `currentGroupName` — выбранная группа
-- `terminalDefaults` — настройки терминала (fontFamily, fontSize, minWidth)
-- `socket` — Socket.IO клиент
+| Module | Responsibility |
+|--------|-----------------|
+| `state.js` | Exports `state` (terminals, currentGroupName, terminalDefaults) and `dom` (DOM element cache) |
+| `render.js` | `renderTerminals()`, `renderControls()`, `renderConnectionStatus()` — centralized UI updates |
+| `terminal.js` | Create/remove terminals, fit/resize, fullscreen, lock |
+| `input.js` | Keyboard and paste handling, send data to terminals |
+| `socket.js` | All Socket.IO events, connection status |
+| `ui.js` | UI initialization: buttons, selects, help modal |
 
-### HTML структура (index.html)
+### State → Render → UI Pattern
+
+Functions mutate `state`, then call the corresponding `render()`:
+```js
+function setTerminalLock(connId, isLocked) {
+  state.terminals[connId].isLocked = isLocked;
+  renderTerminals();
+}
 ```
-footer
-├── div (appTitle)
-│   ├── h1#appTitle
-│   └── small#appSubtitle
-├── div.commandInput
-│   └── input#commandInput
-└── div.controls
-    ├── groupSelect + reconnectGroupBtn
-    ├── invertLocksBtn + unlockAllBtn
-    └── termWidthInput
-```
+
+### Loading
+
+ES modules via `<script type="module" src="client.js">` (no bundler).

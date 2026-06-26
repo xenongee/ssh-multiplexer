@@ -7,6 +7,7 @@ import {
   fitRelevantTerminalsDebounced,
   setTerminalMinWidth,
   clearAllTerminals,
+  isTerminalActive,
 } from "./terminal.js";
 import { renderControls, renderConnectionStatus } from "./render.js";
 
@@ -167,7 +168,7 @@ export function initSocket(socket) {
     });
 
     term.onData((data) => {
-      if (termInfo.isReady && !termInfo.isClosed && !termInfo.hasError) {
+      if (isTerminalActive(termInfo)) {
         socket.emit("term.input.specific", connId, data);
       }
     });

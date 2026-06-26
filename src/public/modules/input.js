@@ -1,17 +1,16 @@
 import { state, dom } from "./state.js";
-import { getFullscreenTermInfo } from "./terminal.js";
+import { getFullscreenTermInfo, isTerminalActive } from "./terminal.js";
 
 export function sendDataToTerminals(data, socket) {
   if (!data) return;
   const fullscreenTermInfo = getFullscreenTermInfo();
   if (fullscreenTermInfo) {
-    const t = fullscreenTermInfo;
-    if (t.isReady && !t.isClosed && !t.hasError && !t.isLocked) {
-      socket.emit("term.input.specific", t.connId, data);
+    if (isTerminalActive(fullscreenTermInfo) && !fullscreenTermInfo.isLocked) {
+      socket.emit("term.input.specific", fullscreenTermInfo.connId, data);
     }
   } else {
     Object.entries(state.terminals).forEach(([connId, t]) => {
-      if (t.isReady && !t.isClosed && !t.hasError && !t.isLocked) {
+      if (isTerminalActive(t) && !t.isLocked) {
         socket.emit("term.input.specific", connId, data);
       }
     });

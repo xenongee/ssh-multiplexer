@@ -1,4 +1,5 @@
 import { state, dom } from "./state.js";
+import { isTerminalActive } from "./terminal.js";
 
 export function renderTerminals() {
   Object.entries(state.terminals).forEach(([connId, termInfo]) => {
@@ -31,9 +32,7 @@ export function renderControls() {
   const groupSelected = dom.groupSelect.value !== "";
   dom.reconnectGroupBtn.disabled = !groupSelected;
 
-  const canReceiveInput = Object.values(state.terminals).some(
-    (t) => t.isReady && !t.isClosed && !t.hasError,
-  );
+  const canReceiveInput = Object.values(state.terminals).some(isTerminalActive);
 
   dom.commandInput.disabled = !groupSelected || !canReceiveInput;
   dom.commandInput.placeholder = !groupSelected

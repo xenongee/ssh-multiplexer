@@ -72,6 +72,10 @@ export function setTerminalState(
   renderControls();
 }
 
+export function isTerminalActive(termInfo) {
+  return !!termInfo && termInfo.isReady && !termInfo.isClosed && !termInfo.hasError;
+}
+
 export function setTerminalLock(connId, isLocked) {
   const termInfo = state.terminals[connId];
   if (!termInfo) return;

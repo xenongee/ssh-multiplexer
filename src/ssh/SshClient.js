@@ -60,11 +60,7 @@ class SshClient {
     }
 
     resize(cols, rows) {
-        if (this.stream) {
-            this.stream.setWindow(rows, cols, (err) => {
-                if (err) logger.warn(`Resize error: ${err.message}`);
-            });
-        }
+        if (this.stream) this.stream.setWindow(rows, cols, 0, 0);
     }
 
     disconnect() {

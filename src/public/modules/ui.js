@@ -5,7 +5,7 @@ import {
   setTerminalState,
   fitTerminal,
   fitRelevantTerminalsDebounced,
-  exitFullscreen,
+  clearAllTerminals,
 } from "./terminal.js";
 import { renderTerminals, renderControls, renderConnectionStatus } from "./render.js";
 
@@ -13,7 +13,6 @@ export function initUI(socket) {
   dom.groupSelect.addEventListener("change", () => {
     state.currentGroupName = dom.groupSelect.value;
     dom.commandInput.value = "";
-    exitFullscreen();
     const expandBtns = dom.terminalsContainer.querySelectorAll(".expand-btn");
     expandBtns.forEach((btn) => {
       btn.textContent = "▣";
@@ -21,12 +20,10 @@ export function initUI(socket) {
     });
     if (state.currentGroupName) {
       socket.emit("selectGroup", state.currentGroupName);
+      renderControls();
     } else {
-      Object.values(state.terminals).forEach((termInfo) => termInfo.term?.dispose());
-      dom.terminalsContainer.innerHTML = "";
-      state.terminals = {};
+      clearAllTerminals();
     }
-    renderControls();
   });
 
   dom.reconnectGroupBtn.addEventListener("click", () => {

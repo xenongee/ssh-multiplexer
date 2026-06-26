@@ -35,17 +35,13 @@ export function initUI(socket) {
     }
   });
 
-  dom.termWidthInput.addEventListener("change", (event) => {
+  const applyTermWidth = (event) => {
     const widthPx = `${Math.max(200, parseInt(event.target.value, 10) || 400)}px`;
     dom.terminalsContainer.style.setProperty("--terminal-min-width", widthPx);
     fitRelevantTerminalsDebounced(socket);
-  });
-
-  dom.termWidthInput.addEventListener("input", (event) => {
-    const widthPx = `${Math.max(200, parseInt(event.target.value, 10) || 400)}px`;
-    dom.terminalsContainer.style.setProperty("--terminal-min-width", widthPx);
-    fitRelevantTerminalsDebounced(socket);
-  });
+  };
+  dom.termWidthInput.addEventListener("change", applyTermWidth);
+  dom.termWidthInput.addEventListener("input", applyTermWidth);
 
   dom.invertLocksBtn.addEventListener("click", () => {
     Object.keys(state.terminals).forEach((connId) => {

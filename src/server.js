@@ -9,7 +9,7 @@ const SocketController = require('./socket/SocketController');
 
 const baseDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, '..');
 const configService = loadConfig(baseDir);
-const appVersion = require(path.join(baseDir, 'package.json')).version;
+const appVersion = require('../package.json').version;
 
 const app = express();
 const server = http.createServer(app);

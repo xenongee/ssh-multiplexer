@@ -40,6 +40,16 @@ function loadConfig(baseDir) {
             groups: Array.isArray(parsedConfig.groups) ? parsedConfig.groups : DEFAULT_CONFIG.groups
         };
         console.log(`> Configuration loaded successfully. Found ${config.groups.length} groups.`);
+        const seenConnIds = new Set();
+        for (const group of config.groups) {
+            for (const host of group.hosts || []) {
+                const connId = generateConnId(host);
+                if (seenConnIds.has(connId)) {
+                    console.warn(`> Duplicate host entry: ${connId} (group '${group.group}'). Multiple hosts with the same user@host:port will collide in terminal ids.`);
+                }
+                seenConnIds.add(connId);
+            }
+        }
         return createService(config);
     } catch (err) {
         console.error(`> ERROR reading or parsing ${APP_CONFIG_FILE}:`, err.message);

@@ -189,7 +189,7 @@ export function initSocket(socket) {
 
   socket.on("term.close", (connId, message) => {
     const termInfo = state.terminals[connId];
-    if (!termInfo || termInfo.isClosed) return;
+    if (!termInfo || termInfo.isClosed || termInfo.hasError) return;
     console.log(`Terminal closed: ${connId} - ${message}`);
     displayTerminalMessage(termInfo, "closed", message || "Connection closed");
     setTerminalState(connId, {

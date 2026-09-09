@@ -6,6 +6,7 @@ import {
   fitTerminal,
   fitRelevantTerminalsDebounced,
   clearAllTerminals,
+  setTerminalMinWidth,
 } from "./terminal.js";
 import { renderTerminals, renderControls, renderConnectionStatus } from "./render.js";
 
@@ -35,11 +36,7 @@ export function initUI(socket) {
     }
   });
 
-  const applyTermWidth = (event) => {
-    const widthPx = `${Math.max(200, parseInt(event.target.value, 10) || 400)}px`;
-    dom.terminalsContainer.style.setProperty("--terminal-min-width", widthPx);
-    fitRelevantTerminalsDebounced(socket);
-  };
+  const applyTermWidth = (event) => setTerminalMinWidth(event.target.value, socket);
   dom.termWidthInput.addEventListener("change", applyTermWidth);
   dom.termWidthInput.addEventListener("input", applyTermWidth);
 

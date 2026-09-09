@@ -127,10 +127,10 @@ export function initUI(socket) {
 
   dom.termWidthInput.addEventListener("wheel", (event) => {
     event.preventDefault();
-    const currentValue = parseInt(dom.termWidthInput.value, 10);
     const step = parseInt(dom.termWidthInput.step, 10) || 10;
-    const min = parseInt(dom.termWidthInput.min, 10);
-    const max = parseInt(dom.termWidthInput.max, 10);
+    const min = parseInt(dom.termWidthInput.min, 10) || 200;
+    const max = parseInt(dom.termWidthInput.max, 10) || 2000;
+    const currentValue = parseInt(dom.termWidthInput.value, 10) || min;
     let newValue;
     if (event.deltaY < 0) {
       newValue = currentValue + step;

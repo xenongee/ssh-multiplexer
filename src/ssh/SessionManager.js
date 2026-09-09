@@ -13,7 +13,7 @@ class SessionManager {
     destroySession(socketId) {
         const session = this.sessions[socketId];
         if (!session) return;
-        Object.values(session.connections).forEach(c => c.client.disconnect());
+        this.disconnectAll(socketId);
         delete this.sessions[socketId];
     }
 

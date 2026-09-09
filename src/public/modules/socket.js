@@ -159,12 +159,7 @@ export function initSocket(socket) {
     fitTerminal(termInfo, socket);
 
     requestAnimationFrame(() => {
-      term.focus();
       dom.commandInput.focus();
-      term.blur();
-      if (term.options.cursorInactiveStyle !== "block") {
-        term.options.cursorInactiveStyle = "block";
-      }
     });
 
     term.onData((data) => {

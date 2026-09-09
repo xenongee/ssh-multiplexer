@@ -44,9 +44,14 @@ class SocketController {
 
         hosts.forEach(hc => {
             const connId = generateConnId(hc);
-            socket.emit('term.create', connId, getDisplayHostString(hc));
-            this._connectSsh(socket, hc, connId);
+            this._spawnTerminal(socket, hc, connId);
         });
+    }
+
+    _spawnTerminal(socket, hostConfig, connId) {
+        this.sessions.disconnect(socket.id, connId);
+        socket.emit('term.create', connId, getDisplayHostString(hostConfig));
+        this._connectSsh(socket, hostConfig, connId);
     }
 
     _reconnect(socket, connId) {
@@ -54,9 +59,7 @@ class SocketController {
         logger.info(`[${socketId}] Reconnect requested for: ${connId}`);
         const hostConfig = this.config.findHostByConnId(connId);
         if (hostConfig) {
-            this.sessions.disconnect(socketId, connId);
-            socket.emit('term.create', connId, getDisplayHostString(hostConfig));
-            this._connectSsh(socket, hostConfig, connId);
+            this._spawnTerminal(socket, hostConfig, connId);
         } else {
             logger.error(`[${socketId}] Host config not found for reconnect: ${connId}`);
             socket.emit('term.error', connId, 'Cannot reconnect: Host config not found.');

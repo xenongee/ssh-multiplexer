@@ -9,12 +9,6 @@ import { renderControls, renderConnectionStatus } from "./modules/render.js";
 document.addEventListener("DOMContentLoaded", () => {
   initDom();
 
-  const styleSheet = document.createElement("style");
-  styleSheet.innerText = `#commandInput.inactive-broadcast { background-color: #4a4a4a; color: #999; font-style: italic; }
-    .terminal-wrapper.locked-state { opacity: 0.7; border-color: var(--lock-color); }
-    .terminal-wrapper.locked-state .terminal-output { background: #3a3020; }`;
-  document.head.appendChild(styleSheet);
-
   const socket = io({ reconnectionAttempts: 5, reconnectionDelay: 2000 });
 
   initSocket(socket);

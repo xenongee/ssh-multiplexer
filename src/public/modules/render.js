@@ -6,7 +6,6 @@ export function renderTerminals() {
     if (!termInfo.element) return;
 
     termInfo.element.classList.toggle("connecting-state", termInfo.isConnecting);
-    termInfo.element.classList.toggle("reconnecting-state", termInfo.isConnecting);
     termInfo.element.classList.toggle("error-state", termInfo.hasError);
     termInfo.element.classList.toggle("closed-state", termInfo.isClosed);
     termInfo.element.classList.toggle("locked-state", termInfo.isLocked);

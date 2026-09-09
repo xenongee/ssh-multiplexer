@@ -300,8 +300,7 @@ main#terminalsContainer.has-fullscreen-terminal
     color: var(--warning-color);
     font-style: italic;
 }
-.terminal-wrapper.connecting-state .terminal-header,
-.terminal-wrapper.reconnecting-state .terminal-header {
+.terminal-wrapper.connecting-state .terminal-header {
     background-color: #3a3a3a;
 }
 .terminal-wrapper.error-state {

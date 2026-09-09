@@ -41,8 +41,6 @@ export function renderControls() {
       ? "Waiting for connections..."
       : "Input for active terminals";
 
-  dom.commandInput.classList.remove("inactive-broadcast");
-
   const hasTerminals = Object.values(state.terminals).length > 0;
   dom.invertLocksBtn.disabled = !hasTerminals;
   dom.unlockAllBtn.disabled = !hasTerminals;

@@ -424,11 +424,6 @@ kbd {
 }
 
 /* --- Dynamic state classes (toggled from JS) --- */
-#commandInput.inactive-broadcast {
-    background-color: #4a4a4a;
-    color: #999;
-    font-style: italic;
-}
 .terminal-wrapper.locked-state {
     opacity: 0.7;
     border-color: var(--lock-color);

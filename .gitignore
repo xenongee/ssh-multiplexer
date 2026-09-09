@@ -1,5 +1,6 @@
 dist
 node_modules
+.serena
 gendoc.sh
 package-lock.json
 project_list.md

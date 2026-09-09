@@ -1,7 +1,6 @@
 "use strict";
 
-import { state, dom, initDom } from "./modules/state.js";
-import { setTerminalMinWidth } from "./modules/terminal.js";
+import { dom, initDom } from "./modules/state.js";
 import { handleCommandKeydown, handleCommandPaste } from "./modules/input.js";
 import { initSocket } from "./modules/socket.js";
 import { initUI } from "./modules/ui.js";
